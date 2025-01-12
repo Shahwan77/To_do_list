@@ -11,27 +11,21 @@ class SignUp_Screen extends StatefulWidget {
 }
 
 class _SignUp_ScreenState extends State<SignUp_Screen> {
+  final _formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final passwordConfirmController = TextEditingController();
+
   FocusNode _focusNode1 = FocusNode();
   FocusNode _focusNode2 = FocusNode();
   FocusNode _focusNode3 = FocusNode();
 
-  final email = TextEditingController();
-  final password = TextEditingController();
-  final PasswordConfirm = TextEditingController();
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _focusNode1.addListener(() {
-      setState(() {});
-    });
-    _focusNode2.addListener(() {
-      setState(() {});
-    });
-    _focusNode3.addListener(() {
-      setState(() {});
-    });
+    _focusNode1.addListener(() => setState(() {}));
+    _focusNode2.addListener(() => setState(() {}));
+    _focusNode3.addListener(() => setState(() {}));
   }
 
   @override
@@ -40,22 +34,66 @@ class _SignUp_ScreenState extends State<SignUp_Screen> {
       backgroundColor: backgroundColors,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              image(),
-              SizedBox(height: 50),
-              textfield(email, _focusNode1, 'Email', Icons.email),
-              SizedBox(height: 10),
-              textfield(password, _focusNode2, 'Password', Icons.password),
-              SizedBox(height: 10),
-              textfield(PasswordConfirm, _focusNode3, 'PasswordConfirm',
-                  Icons.password),
-              SizedBox(height: 8),
-              account(),
-              SizedBox(height: 20),
-              SignUP_bottom(),
-            ],
+          child: Form(
+            key: _formKey, // Add form key
+            child: Column(
+              children: [
+                SizedBox(height: 20),
+                image(),
+                SizedBox(height: 50),
+                textfield(
+                  emailController,
+                  _focusNode1,
+                  'Email',
+                  Icons.email,
+                      (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Email cannot be empty';
+                    }
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                textfield(
+                  passwordController,
+                  _focusNode2,
+                  'Password',
+                  Icons.password,
+                      (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password cannot be empty';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters long';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                textfield(
+                  passwordConfirmController,
+                  _focusNode3,
+                  'Confirm Password',
+                  Icons.password,
+                      (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Confirm Password cannot be empty';
+                    }
+                    if (value != passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 8),
+                account(),
+                SizedBox(height: 20),
+                SignUP_bottom(),
+              ],
+            ),
           ),
         ),
       ),
@@ -69,7 +107,7 @@ class _SignUp_ScreenState extends State<SignUp_Screen> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
-            "Don you have an account?",
+            "Don’t you have an account?",
             style: TextStyle(color: Colors.grey[700], fontSize: 14),
           ),
           SizedBox(width: 5),
@@ -93,8 +131,10 @@ class _SignUp_ScreenState extends State<SignUp_Screen> {
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: GestureDetector(
         onTap: () {
-          AuthenticationRemote()
-              .register(email.text, password.text, PasswordConfirm.text);
+          if (_formKey.currentState!.validate()) {
+            AuthenticationRemote()
+                .register(emailController.text, passwordController.text, passwordConfirmController.text);
+          }
         },
         child: Container(
           alignment: Alignment.center,
@@ -118,7 +158,7 @@ class _SignUp_ScreenState extends State<SignUp_Screen> {
   }
 
   Widget textfield(TextEditingController _controller, FocusNode _focusNode,
-      String typeName, IconData iconss) {
+      String typeName, IconData iconss, String? Function(String?)? validator) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Container(
@@ -126,17 +166,18 @@ class _SignUp_ScreenState extends State<SignUp_Screen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
         ),
-        child: TextField(
+        child: TextFormField(
           controller: _controller,
           focusNode: _focusNode,
           style: TextStyle(fontSize: 18, color: Colors.black),
+          validator: validator,
           decoration: InputDecoration(
               prefixIcon: Icon(
                 iconss,
                 color: _focusNode.hasFocus ? custom_green : Color(0xffc5c5c5),
               ),
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               hintText: typeName,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
