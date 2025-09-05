@@ -5,6 +5,9 @@ import 'package:flutter_to_do_list/const/colors.dart';
 import 'package:flutter_to_do_list/data/firestor.dart';
 import 'package:flutter_to_do_list/widgets/FloatingAction.dart';
 import 'package:flutter_to_do_list/widgets/stream_note.dart';
+import 'package:provider/provider.dart';
+
+import '../auth/auth_provider.dart';
 
 class Home_Screen extends StatefulWidget {
   const Home_Screen({super.key});
@@ -22,8 +25,6 @@ class _Home_ScreenState extends State<Home_Screen> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,6 +32,15 @@ class _Home_ScreenState extends State<Home_Screen> {
         title: Text("To Do Lists", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue.shade400,
         iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.power_settings_new, color: Colors.white),
+            tooltip: "Logout",
+            onPressed: () {
+              _showLogoutDialog(context);
+            },
+          ),
+        ],
       ),
       backgroundColor: backgroundColors,
       body: SafeArea(
@@ -84,6 +94,35 @@ class _Home_ScreenState extends State<Home_Screen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+  void _showLogoutDialog(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: const Text(
+          "Logout",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: const Text("Are you sure you want to logout?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await authProvider.logout(context);
+            },
+            child: const Text("Logout",style: TextStyle(color: Colors.white),),
+          ),
+        ],
       ),
     );
   }
