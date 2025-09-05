@@ -15,7 +15,7 @@ class LogIN_Screen extends StatefulWidget {
 class _LogIN_ScreenState extends State<LogIN_Screen> {
   FocusNode _focusNode1 = FocusNode();
   FocusNode _focusNode2 = FocusNode();
-
+  bool _isPasswordVisible = false;
   final email = TextEditingController();
   final password = TextEditingController();
 
@@ -43,7 +43,7 @@ class _LogIN_ScreenState extends State<LogIN_Screen> {
               SizedBox(height: 50.h),
               textfield(email, _focusNode1, 'Email', Icons.email),
               SizedBox(height: 10.h),
-              textfield(password, _focusNode2, 'Password', Icons.password),
+              textfield(password, _focusNode2, 'Password', Icons.password,),
               SizedBox(height: 8.h),
               account(),
               SizedBox(height: 20.h),
@@ -123,6 +123,7 @@ class _LogIN_ScreenState extends State<LogIN_Screen> {
 
   Widget textfield(TextEditingController _controller, FocusNode _focusNode,
       String typeName, IconData iconss) {
+    bool isPasswordField = typeName.toLowerCase() == "password";
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Container(
@@ -133,33 +134,51 @@ class _LogIN_ScreenState extends State<LogIN_Screen> {
         child: TextField(
           controller: _controller,
           focusNode: _focusNode,
+          obscureText: isPasswordField && !_isPasswordVisible,
           style: TextStyle(fontSize: 18, color: Colors.black),
           decoration: InputDecoration(
-              prefixIcon: Icon(
-                iconss,
-                color: _focusNode.hasFocus ? custom_green : Color(0xffc5c5c5),
+            prefixIcon: Icon(
+              iconss,
+              color: _focusNode.hasFocus ? custom_green : Color(0xffc5c5c5),
+            ),
+            suffixIcon: isPasswordField
+                ? IconButton(
+              icon: Icon(
+                _isPasswordVisible
+                    ? Icons.visibility
+                    : Icons.visibility_off,
+                color: _isPasswordVisible ? custom_green : Colors.grey,
               ),
-              contentPadding:
-              EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              hintText: typeName,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: Color(0xffc5c5c5),
-                  width: 2.0,
-                ),
+              onPressed: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              },
+            )
+                : null,
+            contentPadding:
+            EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            hintText: typeName,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: Color(0xffc5c5c5),
+                width: 2.0,
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: custom_green,
-                  width: 2.0,
-                ),
-              )),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: custom_green,
+                width: 2.0,
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
+
 
   Widget image() {
     return Padding(

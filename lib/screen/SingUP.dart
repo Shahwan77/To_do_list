@@ -15,7 +15,8 @@ class _SignUp_ScreenState extends State<SignUp_Screen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final passwordConfirmController = TextEditingController();
-
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   FocusNode _focusNode1 = FocusNode();
   FocusNode _focusNode2 = FocusNode();
   FocusNode _focusNode3 = FocusNode();
@@ -157,8 +158,16 @@ class _SignUp_ScreenState extends State<SignUp_Screen> {
     );
   }
 
-  Widget textfield(TextEditingController _controller, FocusNode _focusNode,
-      String typeName, IconData iconss, String? Function(String?)? validator) {
+  Widget textfield(
+      TextEditingController _controller,
+      FocusNode _focusNode,
+      String typeName,
+      IconData iconss,
+      String? Function(String?)? validator,
+      ) {
+    bool isPasswordField = typeName.toLowerCase() == "password";
+    bool isConfirmPasswordField = typeName.toLowerCase() == "confirm password";
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Container(
@@ -169,34 +178,71 @@ class _SignUp_ScreenState extends State<SignUp_Screen> {
         child: TextFormField(
           controller: _controller,
           focusNode: _focusNode,
-          style: TextStyle(fontSize: 18, color: Colors.black),
           validator: validator,
+          style: const TextStyle(fontSize: 18, color: Colors.black),
+          obscureText: (isPasswordField && !_isPasswordVisible) ||
+              (isConfirmPasswordField && !_isConfirmPasswordVisible),
           decoration: InputDecoration(
-              prefixIcon: Icon(
-                iconss,
-                color: _focusNode.hasFocus ? custom_green : Color(0xffc5c5c5),
+            prefixIcon: Icon(
+              iconss,
+              color: _focusNode.hasFocus ? custom_green : const Color(0xffc5c5c5),
+            ),
+            // 👇 Show separate eye icons for Password & Confirm Password
+            suffixIcon: isPasswordField
+                ? IconButton(
+              icon: Icon(
+                _isPasswordVisible
+                    ? Icons.visibility
+                    : Icons.visibility_off,
+                color: _isPasswordVisible ? custom_green : Colors.grey,
               ),
-              contentPadding:
-              EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              hintText: typeName,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: Color(0xffc5c5c5),
-                  width: 2.0,
-                ),
+              onPressed: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              },
+            )
+                : isConfirmPasswordField
+                ? IconButton(
+              icon: Icon(
+                _isConfirmPasswordVisible
+                    ? Icons.visibility
+                    : Icons.visibility_off,
+                color: _isConfirmPasswordVisible
+                    ? custom_green
+                    : Colors.grey,
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(
-                  color: custom_green,
-                  width: 2.0,
-                ),
-              )),
+              onPressed: () {
+                setState(() {
+                  _isConfirmPasswordVisible =
+                  !_isConfirmPasswordVisible;
+                });
+              },
+            )
+                : null,
+            contentPadding:
+            const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            hintText: typeName,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xffc5c5c5),
+                width: 2.0,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(
+                color: custom_green,
+                width: 2.0,
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
+
 
   Widget image() {
     return Padding(
